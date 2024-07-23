@@ -50,6 +50,9 @@ namespace PD_Helper
         public PDMemory memory = new PDMemory();
         public ListBox allSkills = new ListBox();
 
+        /// <summary>
+        /// Initializes PDHelper.
+        /// </summary>
         public PDHelperForm()
         {
             InitializeComponent();
@@ -91,9 +94,12 @@ namespace PD_Helper
             refreshView();
         }
 
+        /// <summary>
+        /// Lists all the saved arsenals in the folder, as well as loads all the skills into the editor.
+        /// </summary>
         private void loadArsenalList()
         {
-            //load arsenal editor
+            // Load arsenal editor with skills from the database
             if (editorList.Items.Count == 0)
             {
                 foreach (var item in PDCard.cardDef)
@@ -103,11 +109,10 @@ namespace PD_Helper
                 }
             }
 
-            //add each arsenal file to the list
+            // Add each arsenal file to the list
             savedArsenalListBox.Items.Clear();
-            DirectoryInfo directory = new DirectoryInfo(@"Arsenals\"); //Assuming Test is your Folder
-
-            FileInfo[] Files = directory.GetFiles("*.arsenal"); //Getting Text files
+            DirectoryInfo directory = new DirectoryInfo(@"Arsenals\"); // Assuming Arsenals is your Folder
+            FileInfo[] Files = directory.GetFiles("*.arsenal"); // Getting arsenal files
             string str = "";
 
             foreach (FileInfo file in Files)
@@ -119,6 +124,11 @@ namespace PD_Helper
             arsenalListGroupBox.Text = "Arsenal List (" + savedArsenalListBox.Items.Count + ")";
         }
 
+        /// <summary>
+        /// Load the game data into PDHelper.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void loadGameData(object sender, EventArgs e)
         {
             arsenalDropdown.Items.Clear();
@@ -168,16 +178,31 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Grants max skills.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void giveMaxSkills(object sender, EventArgs e)
         {
             maxSkillsButton.Enabled = memory.GiveMaxSkills();
         }
 
+        /// <summary>
+        /// Grants max credits.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void giveMaxCredits(object sender, EventArgs e)
         {
 			maxCreditsButton.Enabled = !memory.GiveMaxCredits();
         }
 
+        /// <summary>
+        /// Saves the editor arsenal to the game.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnSaveToPDH_Click(object sender, EventArgs e)
         {
 			// Only save if the name is given
@@ -193,7 +218,7 @@ namespace PD_Helper
             {
                 str += editingArsenal[i].HEX + ",";
             }
-            str += $"0{editingArsenal.Schools.Count} 00,";
+            str += $"0{(int)schoolNumeric.Value} 00,";
             using (StreamWriter sw = File.CreateText(path))
             {
                 sw.WriteLine(str);
@@ -209,6 +234,11 @@ namespace PD_Helper
             openArsenalToList(cardList, arsenalNameBox.Text, (int)schoolNumeric.Value);
         }
 
+        /// <summary>
+        /// Replace the selected skill with the one chosen in the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void replaceSkill(object sender, EventArgs e)
         {
             if (editorList.SelectedIndex != -1 && deckListBox.SelectedIndex != -1)
@@ -217,11 +247,11 @@ namespace PD_Helper
                 PDCard card = PDCard.CardFromName(editorList.SelectedItem.ToString());
 
                 string currentHex = card.HEX;
-                editingArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
+                editingArsenal[deckListBox.SelectedIndex] = card;
                 Debug.WriteLine(card.HEX);
 
                 //set loaded deck visual
-                deckListBox.Items[deckListBox.SelectedIndex] = editorList.SelectedItem.ToString();
+                deckListBox.Items[deckListBox.SelectedIndex] = card.NAME;
 
                 // Recount skills
                 int auraCount = 0;
@@ -237,13 +267,17 @@ namespace PD_Helper
             else { MessageBox.Show("ERROR03: You didn't select a skill in your Arsenal and in the Arsenal Editor."); }
         }
 
+        /// <summary>
+        /// Resets the selected skill with Aura.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void resetSkill(object sender, EventArgs e)
         {
             if (deckListBox.SelectedIndex != -1)
             {
                 //set loaded deck card change
-                string currentHex = "FF FF";
-                editingArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
+                editingArsenal[deckListBox.SelectedIndex] = PDCard.cardDef["FF FF"];
                 //set loaded deck visual
                 deckListBox.Items[deckListBox.SelectedIndex] = "Aura Particle";
 
@@ -259,6 +293,11 @@ namespace PD_Helper
             else { MessageBox.Show("You didn't select a skill in your Arsenal."); }
         }
 
+        /// <summary>
+        /// Updates the arsenal name.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void arsenalNameBox_TextChanged(object sender, EventArgs e)
         {
             var textToWrite = arsenalNameBox.Text;
@@ -273,6 +312,11 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Refilters the arsenal editor based on when a control is edited.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void updateEditorList(object sender, EventArgs e)
         {
             // Use the current array of checkmarks
@@ -282,7 +326,7 @@ namespace PD_Helper
                 schoolFilter[i] = schoolFilterCheckedListBox.GetItemChecked(i);
             }
             bool[] rangeFilter = new bool[rangeFilterCheckedListBox.Items.Count];
-            for (int i = 0; i < rangeFilterCheckedListBox.Items.Count; i++)
+            for (int i = 0; i < 10; i++)
             {
                 rangeFilter[i] = rangeFilterCheckedListBox.GetItemChecked(i);
             }
@@ -295,6 +339,13 @@ namespace PD_Helper
             updateEditorList(schoolFilter, rangeFilter, miscNumberFilter);
         }
 
+        /// <summary>
+        /// Refilters the arsenal editor based on the given filters.
+        /// </summary>
+        /// <param name="schoolFilter">Decides which schools to filter.</param>
+        /// <param name="rangeFilter">Decides which ranges to filter.</param>
+        /// <param name="miscNumberFilter">An extra parameter for the non-standard attributes.</param>
+        /// <exception cref="FormatException"></exception>
         private void updateEditorList(bool[] schoolFilter, bool[] rangeFilter, bool[] miscNumberFilter)
         {
             // Step 0: Make a list of skills that contain all the ones to display
@@ -458,6 +509,11 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Loads an arsenal selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void loadArsenal(object sender, EventArgs e)
         {
             if (savedArsenalListBox.SelectedIndex != -1)
@@ -476,7 +532,6 @@ namespace PD_Helper
 				}
                 
                 schoolNumeric.Value = Math.Max(1,editingArsenal.Schools.Count);
-
                 deckListBox.Items.Clear();
                 int auraCount = 0;
                 for (int i = 0; i < 30; i++)
@@ -485,61 +540,16 @@ namespace PD_Helper
                     if (editingArsenal[i].TYPE == "Aura") auraCount++;
                 }
                 arsenalNameBox.Text = name;
-                skillCountLabel.Text = Convert.ToString(30 - auraCount) + "/30";        
-
-                /*
-                var regex = new Regex(@"[\\\/\:\*\?\""\<\>\|]");
-                if (regex.IsMatch(savedArsenalListBox.SelectedItem.ToString()))
-                {
-                    MessageBox.Show(@"ERROR08: The arsenal name contains banned characters (\ / : * ? \ < > |)");
-                }
-                else
-                {
-                    string path = @"Arsenals\" + savedArsenalListBox.SelectedItem.ToString() + ".arsenal";
-                    string file = File.ReadAllText(path);
-                    string[] deckStrings = file.Split(',');
-                    if (deckStrings.Length < 30)
-                    {
-                        MessageBox.Show(@"ERROR10: The arsenal does not contain a valid amount of cards. The arsenal has been tampered with or is corrupted. Please try loading another arsenal.");
-                    } else
-                    {
-                        //manual write schools
-
-                        string loadSchoolAmount = deckStrings[30].Remove(deckStrings[30].Length - 3);
-                        if (loadSchoolAmount == "01" || loadSchoolAmount == "02" || loadSchoolAmount == "03")
-                        {
-                            schoolNumeric.Value = Int32.Parse(loadSchoolAmount);
-                            //loadedDeck[30] = deckStrings[30];
-                            deckListBox.Items.Clear();
-                            for (int i = 0; i < 30; i++)
-                            {
-                                if (!PDCard.cardDef.ContainsKey(deckStrings[i]))
-                                {
-                                    MessageBox.Show("ERROR09: A Skill from your loaded arsenal does not exist in the game and could not be loaded. The arsenal has been tampered with or was corrupted. Please try loading another arsenal.");
-                                    break;
-                                }
-                                else
-                                {
-                                    loadedDeck[i] = deckStrings[i];
-                                    deckListBox.Items.Add(PDCard.cardDef[deckStrings[i]].NAME);
-                                }
-
-                            }
-
-
-                            //write name
-                            arsenalNameBox.Text = savedArsenalListBox.SelectedItem.ToString();
-                        }
-                        else
-                        {
-                            MessageBox.Show("ERROR06: The loaded Arsenal loaded is not set to 1,2 or 3 Schools.");
-                        }
-                    }
-                }*/
+                skillCountLabel.Text = Convert.ToString(30 - auraCount) + "/30";
             }
             else MessageBox.Show("ERROR04: You didn't select an Arsenal in the Arsenal List.");
         }
 
+        /// <summary>
+        /// Deletes the selected file after asking the user for confirmation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void deleteArsenal(object sender, EventArgs e)
         {
             DialogResult dr = MessageBox.Show("Are you sure you want to delete Arsenal: " + savedArsenalListBox.SelectedItem.ToString() + "?", "Arsenal Deletion Check", MessageBoxButtons.YesNo);
@@ -551,6 +561,11 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Changes the partner lock on check.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void partnerLock_CheckedChanged(object sender, EventArgs e)
         {
             memory.SetPartnerLockOn(partnerLock.Checked);
@@ -564,6 +579,10 @@ namespace PD_Helper
 
         private Color darkColorFromName(string name) => darkColorFromType(PDCard.CardFromName(name).TYPE);
 
+        /// <summary>
+        /// Displays the selected card info onto the editor.
+        /// </summary>
+        /// <param name="name"></param>
         private void displayEditorSkill(string name)
         {
             PDCard card = PDCard.CardFromName(name);
@@ -583,6 +602,11 @@ namespace PD_Helper
             labelSkillSchool.ForeColor = textColor;
         }
 
+        /// <summary>
+        /// Activates when a different card is selected in the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void editorList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (editorList.SelectedIndex != -1)
@@ -591,6 +615,10 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Determines whether the current arsenal is valid for use.
+        /// </summary>
+        /// <returns></returns>
         private bool validateArsenal()
         {
             //school limit checking
@@ -654,7 +682,6 @@ namespace PD_Helper
                 }
             }
 
-
             if (schoolAmount > maxAllowedSchools)
             {
                 MessageBox.Show("ERROR05: This Arsenal has skills from too many schools. You are limited to: " + maxAllowedSchools.ToString() + " School(s)");
@@ -668,6 +695,11 @@ namespace PD_Helper
             else return true;
         }
 
+        /// <summary>
+        /// Saves the arsenal to the game if it is valid.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void saveToPDbtn_Click(object sender, EventArgs e)
         {
 			try
@@ -677,34 +709,6 @@ namespace PD_Helper
                     editingArsenal.Name = arsenalNameBox.Text;
                     memory.SetArsenal(arsenalDropdown.SelectedIndex, editingArsenal, (int)schoolNumeric.Value);
                     arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();
-
-                    /*
-                    //writing the name
-                    byte[] deckNameToWrite = Encoding.ASCII.GetBytes(arsenalNameBox.Text);
-                    Array.Resize(ref deckNameToWrite, 15);
-                    memory.SetArsenalName(arsenalDropdown.SelectedIndex, deckNameToWrite);
-
-                    // writing the cards + school
-                    //string[] offsetsLoadCards = { "18", "7C", "E0", "144", "1A8", "20C", "270", "2D4", "338", "39C", "400", "464", "4C8", "52C", "590", "5F4" };
-                    byte[] dataToWrite = { };
-                    Array.Resize(ref dataToWrite, 62);
-
-                    int o = 0;
-                    for (int i = 0; i < 30; i++)
-                    {
-                        string hex = loadedArsenal[i].HEX;
-                        dataToWrite[o] = Convert.ToByte(hex.Remove(2), 16);
-                        dataToWrite[o + 1] = Convert.ToByte(hex.Remove(0, 3), 16);
-                        System.Diagnostics.Debug.WriteLine(hex.Remove(2), 16);
-                        System.Diagnostics.Debug.WriteLine(hex.Remove(0, 3), 16);
-                        o += 2;
-                    }
-                    string schoolCountHex = $"0{loadedArsenal.Schools.Count} 00";
-                    dataToWrite[o] = Convert.ToByte(schoolCountHex.Remove(2), 16);
-                    dataToWrite[o + 1] = Convert.ToByte(schoolCountHex.Remove(0, 3), 16);
-
-                    memory.SetArsenalCardsBytes(arsenalDropdown.SelectedIndex, dataToWrite);
-                    arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();*/
                 }
             }
 			catch (Exception)
@@ -713,16 +717,22 @@ namespace PD_Helper
 			}
         }
 
-        private void schoolNumeric_ValueChanged(object sender, EventArgs e)
-        {
-            // Deprecated
-            //loadedDeck[30] = "0" + schoolNumeric.Value.ToString() + " 00";
-        }
+        /// <summary>
+        /// Opens the folder containing the arsenal files.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openArsenalFolder(object sender, EventArgs e)
         {
             Process.Start("explorer.exe", @"Arsenals\");
         }
         
+        /// <summary>
+        /// Places the given cards, with associated name and school amount, onto the listing.
+        /// </summary>
+        /// <param name="cardList">The cards to be edited into the arsenal.</param>
+        /// <param name="arsenalName">The arsenal name.</param>
+        /// <param name="schoolAmount">The number of schools in the arsenal.</param>
         private void openArsenalToList(List<PDCard> cardList, string arsenalName = "", int schoolAmount = 2)
         {
             // Sort the list
@@ -749,6 +759,10 @@ namespace PD_Helper
             loadArsenalList();
         }
 
+        /// <summary>
+        /// Places the arsenal into the listing.
+        /// </summary>
+        /// <param name="arsenal">The arsenal to be edited.</param>
         private void openArsenalToList(PDArsenal arsenal)
         {
             // Sort the list
@@ -772,6 +786,11 @@ namespace PD_Helper
             loadArsenalList();
         }
 
+        /// <summary>
+        /// Loads a new PD arsenal from the game into the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void arsenalDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (memory.GetPartnerLockOn())
@@ -785,7 +804,6 @@ namespace PD_Helper
             Byte[] loadDeck = memory.GetArsenalCardsBytes(arsenalDropdown.SelectedIndex);
             
             //add cards to list
-            //loadedDeck = new string[] { "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "00 00" };
             List<PDCard> cardList = new List<PDCard>();
             int o = 0;
             for (int i = 0; i < 30; i++)
@@ -804,7 +822,12 @@ namespace PD_Helper
             openArsenalToList(cardList, arsenalDropdown.SelectedItem.ToString(), Int32.Parse(loadSchoolAmount)); 
         }
 
-        private void deckListBox1_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Displays the newly selected card in the arsenal onto the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deckListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Make the editor select the new skill
             if (deckListBox.SelectedIndex != -1)
@@ -813,6 +836,11 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Draws the card in the ListBox with its associated type color and school icon.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void skillList_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index < 0) return;
@@ -847,12 +875,22 @@ namespace PD_Helper
                 );
         }
 
+        /// <summary>
+        /// Unused; Toggles partner lock on based on the keyboard.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         { 
             // this should be the keypress T to toggle partner lock but its not working while not focused
             //if (e.KeyData == Keys.T) { partnerLock.Invoke((MethodInvoker)(() => partnerLock.Checked = !partnerLock.Checked)); }
         }
 
+        /// <summary>
+        /// Refreshes the current arsenal files displayed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void refreshArsenalList(object sender, EventArgs e)
         {
             //add each arsenal file to the list
@@ -871,6 +909,11 @@ namespace PD_Helper
             arsenalListGroupBox.Text = "Arsenal List (" + savedArsenalListBox.Items.Count + ")";
         }
 
+        /// <summary>
+        /// Toggles the partner lock on based on the controller.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GamepadWorker_DoWork_1(object sender, DoWorkEventArgs e)
         {
             // previous state tracking
@@ -887,6 +930,11 @@ namespace PD_Helper
             }
         }
 
+        /// <summary>
+        /// Modify the school filter.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void schoolFilterCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
 		{
             // Use the current array of checkmarks but with the updated checkmark value instead
@@ -910,6 +958,11 @@ namespace PD_Helper
             updateEditorList(schoolFilter, rangeFilter, miscNumberFilter);
         }
 
+        /// <summary>
+        /// Modify the range filter.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void rangeFilterCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             // Use the current array of checkmarks but with the updated checkmark value instead
@@ -933,6 +986,11 @@ namespace PD_Helper
             updateEditorList(schoolFilter, rangeFilter, miscNumberFilter);
         }
 
+        /// <summary>
+        /// Modify the misc filter.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miscNumberCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             // Use the current array of checkmarks but with the updated checkmark value instead
@@ -956,6 +1014,11 @@ namespace PD_Helper
             updateEditorList(schoolFilter, rangeFilter, miscNumberFilter);
         }
 
+        /// <summary>
+        /// Open the color profile menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void colorProfileButton_Click(object sender, EventArgs e)
 		{
             // Open new form for setting colors
@@ -965,6 +1028,9 @@ namespace PD_Helper
             refreshView();
 		}
 
+        /// <summary>
+        /// Refreshes the application. Used when new colors are loaded.
+        /// </summary>
         public void refreshView()
         {
             // Refresh the two editor views
@@ -985,24 +1051,32 @@ namespace PD_Helper
             specialRadioButton.ForeColor = lightColorFromType("Special");
         }
 
+        /// <summary>
+        /// Removes the selection when checking a checkmark.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void checkedListBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
             ((CheckedListBox)sender).ClearSelected();
 		}
 
+        /// <summary>
+        /// Load a blank 30 aura arsenal.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void newArsenalButton_Click(object sender, EventArgs e)
 		{
-            // Load a blank 30 aura arsenal
             editingArsenal = new PDArsenal(string.Empty);
-            /*
-            List<PDCard> emptyArsenal = new List<PDCard>();
-            for (int i = 0; i < 30; i++)
-            {
-                emptyArsenal.Add(PDCard.CardFromName("Aura Particle"));
-            }*/
             openArsenalToList(editingArsenal);
         }
 
+        /// <summary>
+        /// Draws the arsenal file in the listing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 		private void savedArsenalListBox_DrawItem(object sender, DrawItemEventArgs e)
 		{
             // Get ListBox

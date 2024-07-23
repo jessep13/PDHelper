@@ -31,7 +31,7 @@ namespace PD_Helper
         private void InitializeComponent()
         {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PDHelperForm));
-			this.button1 = new System.Windows.Forms.Button();
+			this.loadProfileButton = new System.Windows.Forms.Button();
 			this.maxSkillsButton = new System.Windows.Forms.Button();
 			this.maxCreditsButton = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
@@ -139,17 +139,17 @@ namespace PD_Helper
 			((System.ComponentModel.ISupportInitialize)(this.strMinNumeric)).BeginInit();
 			this.SuspendLayout();
 			// 
-			// button1
+			// loadProfileButton
 			// 
-			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button1.ForeColor = System.Drawing.Color.Orange;
-			this.button1.Location = new System.Drawing.Point(10, 22);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(205, 23);
-			this.button1.TabIndex = 0;
-			this.button1.Text = "Load Profile";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.loadGameData);
+			this.loadProfileButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.loadProfileButton.ForeColor = System.Drawing.Color.Orange;
+			this.loadProfileButton.Location = new System.Drawing.Point(10, 22);
+			this.loadProfileButton.Name = "loadProfileButton";
+			this.loadProfileButton.Size = new System.Drawing.Size(205, 23);
+			this.loadProfileButton.TabIndex = 0;
+			this.loadProfileButton.Text = "Load Profile";
+			this.loadProfileButton.UseVisualStyleBackColor = true;
+			this.loadProfileButton.Click += new System.EventHandler(this.loadGameData);
 			// 
 			// maxSkillsButton
 			// 
@@ -263,7 +263,7 @@ namespace PD_Helper
 			this.groupBox2.Controls.Add(this.label12);
 			this.groupBox2.Controls.Add(this.arsenalDropdown);
 			this.groupBox2.Controls.Add(this.label2);
-			this.groupBox2.Controls.Add(this.button1);
+			this.groupBox2.Controls.Add(this.loadProfileButton);
 			this.groupBox2.ForeColor = System.Drawing.SystemColors.ScrollBar;
 			this.groupBox2.Location = new System.Drawing.Point(12, 12);
 			this.groupBox2.Name = "groupBox2";
@@ -357,7 +357,6 @@ namespace PD_Helper
             0,
             0,
             0});
-			this.schoolNumeric.ValueChanged += new System.EventHandler(this.schoolNumeric_ValueChanged);
 			// 
 			// arsenalNameLabel
 			// 
@@ -422,7 +421,7 @@ namespace PD_Helper
 			this.deckListBox.Size = new System.Drawing.Size(432, 150);
 			this.deckListBox.TabIndex = 1;
 			this.deckListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.skillList_DrawItem);
-			this.deckListBox.SelectedIndexChanged += new System.EventHandler(this.deckListBox1_SelectedIndexChanged);
+			this.deckListBox.SelectedIndexChanged += new System.EventHandler(this.deckListBox_SelectedIndexChanged);
 			this.deckListBox.DoubleClick += new System.EventHandler(this.replaceSkill);
 			// 
 			// arsenalListGroupBox
@@ -1437,7 +1436,7 @@ namespace PD_Helper
 
         #endregion
 
-        private Button button1;
+        private Button loadProfileButton;
         private Button maxSkillsButton;
         private Button maxCreditsButton;
         private Label label2;
