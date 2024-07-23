@@ -1086,11 +1086,51 @@ namespace PD_Helper
             e.DrawBackground();
 
             // Text
-            string arsenal = listBox.Items[e.Index].ToString();
-            e.Graphics.DrawString(arsenal, e.Font, new SolidBrush(Color.Black), e.Bounds, StringFormat.GenericDefault);
+            string name = listBox.Items[e.Index].ToString();
+            e.Graphics.DrawString(name, e.Font, new SolidBrush(SystemColors.ScrollBar), e.Bounds, StringFormat.GenericDefault);
 
             // Focus
             e.DrawFocusRectangle();
+
+            // Load the arsenal from the file
+            string path = @"Arsenals\" + name + ".arsenal";
+            PDArsenal arsenal = PDArsenal.LoadFromFile(name, path);
+
+            // Get the schools, and reverse the order
+            List<PDCard.School> schools = arsenal.Schools;
+            schools.Reverse();
+
+			// Add school images.
+			for (int i = 0; i < schools.Count; i++)
+			{
+                // Get the school icon as bitmap
+                string schoolName = Enum.GetName(schools[i]);
+                string iconPath = @"School_Icons\" + schoolName + ".png";
+                Bitmap schoolIcon = (Bitmap)Image.FromFile(iconPath);
+
+				// Change the color of the icons
+				for (int y = 0; y < schoolIcon.Height; y++)
+				{
+					for (int x = 0; x < schoolIcon.Width; x++)
+					{
+						if (schoolIcon.GetPixel(x,y).A != 0)
+						{
+                            schoolIcon.SetPixel(x, y, SystemColors.ScrollBar);
+                        }
+					}
+				}
+
+                // Get size ratio
+                float ratio = (float)e.Bounds.Height / (float)schoolIcon.Height;
+
+                // Draw the school icon
+                e.Graphics.DrawImage(schoolIcon,
+                    x: (float)e.Bounds.Right - ratio * (float)schoolIcon.Width * (i + 1),
+                    y: (float)e.Bounds.Top,
+                    width: ratio * (float)schoolIcon.Width,
+                    height: (float)e.Bounds.Height
+                    );
+            }
 		}
 	}
 }

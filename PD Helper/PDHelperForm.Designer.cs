@@ -553,6 +553,7 @@ namespace PD_Helper
 			// savedArsenalListBox
 			// 
 			this.savedArsenalListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(33)))), ((int)(((byte)(33)))));
+			this.savedArsenalListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
 			this.savedArsenalListBox.ForeColor = System.Drawing.SystemColors.ScrollBar;
 			this.savedArsenalListBox.FormattingEnabled = true;
 			this.savedArsenalListBox.ItemHeight = 15;
