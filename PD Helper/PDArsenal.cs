@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PD_Helper
 {
-	internal class PDArsenal
+	public class PDArsenal
 	{
 		// TODO: Change to List<PDCard> with capacity 30.
 		PDCard[] cards = new PDCard[30];

@@ -620,7 +620,6 @@ namespace PD_Helper
                         break;
                     case "Aura":
                         break;
-
                 }
             }
             int maxAllowedSchools = loadedArsenal.Schools.Count;
@@ -672,6 +671,11 @@ namespace PD_Helper
 			{
                 if (validateArsenal())
                 {
+                    loadedArsenal.Name = arsenalNameBox.Text;
+                    memory.SetArsenal(arsenalDropdown.SelectedIndex, loadedArsenal);
+                    arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();
+
+                    /*
                     //writing the name
                     byte[] deckNameToWrite = Encoding.ASCII.GetBytes(arsenalNameBox.Text);
                     Array.Resize(ref deckNameToWrite, 15);
@@ -697,7 +701,7 @@ namespace PD_Helper
                     dataToWrite[o + 1] = Convert.ToByte(schoolCountHex.Remove(0, 3), 16);
 
                     memory.SetArsenalCardsBytes(arsenalDropdown.SelectedIndex, dataToWrite);
-                    arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();
+                    arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();*/
                 }
             }
 			catch (Exception)

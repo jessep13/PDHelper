@@ -257,5 +257,33 @@ namespace PD_Helper
 			IntPtr zero = IntPtr.Zero;
 			return WriteProcessMemory(handle, address, write, (uint)write.Length, out zero);
 		}
+
+		public bool SetArsenal(int index, PDArsenal arsenal)
+		{
+			//writing the name
+			byte[] deckNameToWrite = Encoding.ASCII.GetBytes(arsenal.Name);
+			Array.Resize(ref deckNameToWrite, 15);
+
+			// writing the cards + school
+			//string[] offsetsLoadCards = { "18", "7C", "E0", "144", "1A8", "20C", "270", "2D4", "338", "39C", "400", "464", "4C8", "52C", "590", "5F4" };
+			byte[] dataToWrite = { };
+			Array.Resize(ref dataToWrite, 62);
+
+			int o = 0;
+			for (int i = 0; i < 30; i++)
+			{
+				string hex = arsenal[i].HEX;
+				dataToWrite[o] = Convert.ToByte(hex.Remove(2), 16);
+				dataToWrite[o + 1] = Convert.ToByte(hex.Remove(0, 3), 16);
+				System.Diagnostics.Debug.WriteLine(hex.Remove(2), 16);
+				System.Diagnostics.Debug.WriteLine(hex.Remove(0, 3), 16);
+				o += 2;
+			}
+			string schoolCountHex = $"0{arsenal.Schools.Count} 00";
+			dataToWrite[o] = Convert.ToByte(schoolCountHex.Remove(2), 16);
+			dataToWrite[o + 1] = Convert.ToByte(schoolCountHex.Remove(0, 3), 16);
+
+			return SetArsenalName(index, deckNameToWrite) && SetArsenalCardsBytes(index, dataToWrite);
+		}
 	}
 }
