@@ -41,7 +41,7 @@ namespace PD_Helper
         private Controller _controller;
 
         // Load card definitions
-        PDArsenal loadedArsenal;
+        PDArsenal editingArsenal;
         //string[] loadedDeck = { "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "FF FF", "00 00" };
         //string loadedDeckName = "";
 
@@ -80,14 +80,14 @@ namespace PD_Helper
             editorList.ItemHeight = deckListBox.ItemHeight;
 
             // Load a blank 30 aura arsenal
-            loadedArsenal = new PDArsenal(string.Empty);
+            editingArsenal = new PDArsenal(string.Empty);
             /*
             List<PDCard> emptyArsenal = new List<PDCard>();
 			for (int i = 0; i < 30; i++)
 			{
                 emptyArsenal.Add(PDCard.CardFromName("Aura Particle"));
 			}*/
-            openArsenalToList(loadedArsenal);
+            openArsenalToList(editingArsenal);
             refreshView();
         }
 
@@ -181,31 +181,31 @@ namespace PD_Helper
         private void btnSaveToPDH_Click(object sender, EventArgs e)
         {
 			// Only save if the name is given
-			if (loadedArsenal.Name == "")
+			if (editingArsenal.Name == "")
 			{
                 MessageBox.Show("Please enter a name for the arsenal to save.");
                 return;
 			}
             
-            string path = @"Arsenals\" + loadedArsenal.Name + ".arsenal";
+            string path = @"Arsenals\" + editingArsenal.Name + ".arsenal";
             string str = "";
             for (int i = 0; i < 30; i++)
             {
-                str += loadedArsenal[i].HEX + ",";
+                str += editingArsenal[i].HEX + ",";
             }
-            str += $"0{loadedArsenal.Schools.Count} 00,";
+            str += $"0{editingArsenal.Schools.Count} 00,";
             using (StreamWriter sw = File.CreateText(path))
             {
                 sw.WriteLine(str);
                 sw.Close();
             }
             // only add new name to list if its a unique new deck, update the old one otherwise
-            if (!savedArsenalListBox.Items.Contains(loadedArsenal.Name) == true) {
-                savedArsenalListBox.Items.Add(loadedArsenal.Name);
+            if (!savedArsenalListBox.Items.Contains(editingArsenal.Name) == true) {
+                savedArsenalListBox.Items.Add(editingArsenal.Name);
             }
 
             // Re-sort the arsenal
-            List<PDCard> cardList = new List<PDCard>(loadedArsenal.Cards);
+            List<PDCard> cardList = new List<PDCard>(editingArsenal.Cards);
             openArsenalToList(cardList, arsenalNameBox.Text, (int)schoolNumeric.Value);
         }
 
@@ -217,7 +217,7 @@ namespace PD_Helper
                 PDCard card = PDCard.CardFromName(editorList.SelectedItem.ToString());
 
                 string currentHex = card.HEX;
-                loadedArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
+                editingArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
                 Debug.WriteLine(card.HEX);
 
                 //set loaded deck visual
@@ -243,7 +243,7 @@ namespace PD_Helper
             {
                 //set loaded deck card change
                 string currentHex = "FF FF";
-                loadedArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
+                editingArsenal[deckListBox.SelectedIndex] = PDCard.cardDef[currentHex];
                 //set loaded deck visual
                 deckListBox.Items[deckListBox.SelectedIndex] = "Aura Particle";
 
@@ -265,7 +265,7 @@ namespace PD_Helper
             var regex = new Regex(@"[\\\/\:\*\?\""\<\>\|]");
             if (!regex.IsMatch(textToWrite))
             {
-                loadedArsenal.Name = arsenalNameBox.Text;
+                editingArsenal.Name = arsenalNameBox.Text;
             } else
             {
                 arsenalNameBox.Text = arsenalNameBox.Text.Remove(arsenalNameBox.Text.Length - 1, 1);
@@ -467,7 +467,7 @@ namespace PD_Helper
 
 				try
 				{
-                    loadedArsenal = PDArsenal.LoadFromFile(name, path);
+                    editingArsenal = PDArsenal.LoadFromFile(name, path);
                 }
 				catch (Exception exception)
 				{
@@ -475,14 +475,14 @@ namespace PD_Helper
                     return;
 				}
                 
-                schoolNumeric.Value = Math.Max(1,loadedArsenal.Schools.Count);
+                schoolNumeric.Value = Math.Max(1,editingArsenal.Schools.Count);
 
                 deckListBox.Items.Clear();
                 int auraCount = 0;
                 for (int i = 0; i < 30; i++)
                 {
-					deckListBox.Items.Add(loadedArsenal[i].NAME);
-                    if (loadedArsenal[i].TYPE == "Aura") auraCount++;
+					deckListBox.Items.Add(editingArsenal[i].NAME);
+                    if (editingArsenal[i].TYPE == "Aura") auraCount++;
                 }
                 arsenalNameBox.Text = name;
                 skillCountLabel.Text = Convert.ToString(30 - auraCount) + "/30";        
@@ -674,8 +674,8 @@ namespace PD_Helper
 			{
                 if (validateArsenal())
                 {
-                    loadedArsenal.Name = arsenalNameBox.Text;
-                    memory.SetArsenal(arsenalDropdown.SelectedIndex, loadedArsenal, (int)schoolNumeric.Value);
+                    editingArsenal.Name = arsenalNameBox.Text;
+                    memory.SetArsenal(arsenalDropdown.SelectedIndex, editingArsenal, (int)schoolNumeric.Value);
                     arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();
 
                     /*
@@ -728,12 +728,14 @@ namespace PD_Helper
             // Sort the list
             cardList.Sort(PDCard.SortType());
 
+            // Set arsenal
+            editingArsenal = new PDArsenal(arsenalName, cardList.ToArray());
+
             // Enter card to the list box. Also count aura
             int auraCount = 0;
             deckListBox.Items.Clear();
             for (int i = 0; i < 30; i++)
             {
-                loadedArsenal[i] = cardList[i];
                 deckListBox.Items.Add(cardList[i].NAME);
                 if (cardList[i].TYPE == "Aura") auraCount++;
             }
@@ -742,7 +744,7 @@ namespace PD_Helper
             skillCountLabel.Text = Convert.ToString(30 - auraCount) + "/30";
             schoolNumeric.Value = schoolAmount;
             arsenalNameBox.Text = arsenalName;
-            loadedArsenal.Name = arsenalName;
+            editingArsenal.Name = arsenalName;
 
             loadArsenalList();
         }
@@ -991,14 +993,14 @@ namespace PD_Helper
 		private void newArsenalButton_Click(object sender, EventArgs e)
 		{
             // Load a blank 30 aura arsenal
-            loadedArsenal = new PDArsenal(string.Empty);
+            editingArsenal = new PDArsenal(string.Empty);
             /*
             List<PDCard> emptyArsenal = new List<PDCard>();
             for (int i = 0; i < 30; i++)
             {
                 emptyArsenal.Add(PDCard.CardFromName("Aura Particle"));
             }*/
-            openArsenalToList(loadedArsenal);
+            openArsenalToList(editingArsenal);
         }
 
 		private void savedArsenalListBox_DrawItem(object sender, DrawItemEventArgs e)
