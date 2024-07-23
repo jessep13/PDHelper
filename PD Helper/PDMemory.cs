@@ -258,7 +258,7 @@ namespace PD_Helper
 			return WriteProcessMemory(handle, address, write, (uint)write.Length, out zero);
 		}
 
-		public bool SetArsenal(int index, PDArsenal arsenal)
+		public bool SetArsenal(int index, PDArsenal arsenal, int schoolNum)
 		{
 			//writing the name
 			byte[] deckNameToWrite = Encoding.ASCII.GetBytes(arsenal.Name);
@@ -279,7 +279,7 @@ namespace PD_Helper
 				System.Diagnostics.Debug.WriteLine(hex.Remove(0, 3), 16);
 				o += 2;
 			}
-			string schoolCountHex = $"0{arsenal.Schools.Count} 00";
+			string schoolCountHex = $"0{schoolNum} 00";
 			dataToWrite[o] = Convert.ToByte(schoolCountHex.Remove(2), 16);
 			dataToWrite[o + 1] = Convert.ToByte(schoolCountHex.Remove(0, 3), 16);
 

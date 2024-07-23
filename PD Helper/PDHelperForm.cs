@@ -625,7 +625,7 @@ namespace PD_Helper
                         break;
                 }
             }
-            int maxAllowedSchools = loadedArsenal.Schools.Count;
+            int maxAllowedSchools = (int)schoolNumeric.Value;
             if (psy > 0) { schoolAmount++; }
             if (opt > 0) { schoolAmount++; }
             if (nat > 0) { schoolAmount++; }
@@ -675,7 +675,7 @@ namespace PD_Helper
                 if (validateArsenal())
                 {
                     loadedArsenal.Name = arsenalNameBox.Text;
-                    memory.SetArsenal(arsenalDropdown.SelectedIndex, loadedArsenal);
+                    memory.SetArsenal(arsenalDropdown.SelectedIndex, loadedArsenal, (int)schoolNumeric.Value);
                     arsenalDropdown.Items[arsenalDropdown.SelectedIndex] = arsenalNameBox.Text.ToString();
 
                     /*
