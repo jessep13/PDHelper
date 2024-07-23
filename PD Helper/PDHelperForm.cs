@@ -478,11 +478,14 @@ namespace PD_Helper
                 schoolNumeric.Value = Math.Max(1,loadedArsenal.Schools.Count);
 
                 deckListBox.Items.Clear();
+                int auraCount = 0;
                 for (int i = 0; i < 30; i++)
                 {
 					deckListBox.Items.Add(loadedArsenal[i].NAME);
+                    if (loadedArsenal[i].TYPE == "Aura") auraCount++;
                 }
                 arsenalNameBox.Text = name;
+                skillCountLabel.Text = Convert.ToString(30 - auraCount) + "/30";        
 
                 /*
                 var regex = new Regex(@"[\\\/\:\*\?\""\<\>\|]");
