@@ -84,12 +84,6 @@ namespace PD_Helper
 
             // Load a blank 30 aura arsenal
             editingArsenal = new PDArsenal(string.Empty);
-            /*
-            List<PDCard> emptyArsenal = new List<PDCard>();
-			for (int i = 0; i < 30; i++)
-			{
-                emptyArsenal.Add(PDCard.CardFromName("Aura Particle"));
-			}*/
             openArsenalToList(editingArsenal);
             refreshView();
         }
@@ -1079,6 +1073,8 @@ namespace PD_Helper
         /// <param name="e"></param>
 		private void savedArsenalListBox_DrawItem(object sender, DrawItemEventArgs e)
 		{
+            // TODO: Ensure elements scale properly
+            
             // Get ListBox
             ListBox listBox = (ListBox)sender;
 
@@ -1087,7 +1083,7 @@ namespace PD_Helper
 
             // Text
             string name = listBox.Items[e.Index].ToString();
-            e.Graphics.DrawString(name, e.Font, new SolidBrush(SystemColors.ScrollBar), e.Bounds, StringFormat.GenericDefault);
+            e.Graphics.DrawString(name, e.Font, new SolidBrush(e.ForeColor), e.Bounds, StringFormat.GenericDefault);
 
             // Focus
             e.DrawFocusRectangle();
@@ -1115,7 +1111,7 @@ namespace PD_Helper
 					{
 						if (schoolIcon.GetPixel(x,y).A != 0)
 						{
-                            schoolIcon.SetPixel(x, y, SystemColors.ScrollBar);
+                            schoolIcon.SetPixel(x, y, e.ForeColor);
                         }
 					}
 				}
